@@ -1,0 +1,109 @@
+const { createProduct, findProduct, updateProduct } = require('../common/models/Product');
+const { getContract } = require('./fabricService');
+
+/**
+ * Creates a product in the SQL database and its corresponding asset on the blockchain.
+ * @param {object} productData - Data for the new product (name, description, etc.).
+ * @param {string} ownerId - The username of the user creating the product.
+ */
+async function createProductWithTraceability(productData, ownerId) {
+    // 1. Create product in the primary SQL database
+    const newProduct = await createProduct(productData);
+
+    let gateway;
+    try {
+        // 2. Connect to the Fabric network
+        const { gateway: gw, contract } = await getContract(ownerId);
+        gateway = gw;
+
+        // 3. Submit the transaction to the blockchain ledger
+        console.log(`\n--> Submit Transaction: createProductAsset, ID: ${newProduct.id}, Name: ${newProduct.name}, Owner: ${ownerId}`);
+        await contract.submitTransaction(
+            'createProductAsset',
+            newProduct.id.toString(),
+            newProduct.name,
+            ownerId
+        );
+        console.log('*** Result: committed');
+
+    } catch (error) {
+        console.error(`Failed to submit transaction: ${error}`);
+        // Optional: Add logic to roll back the SQL database insertion if the blockchain part fails.
+        // await deleteProduct({ id: newProduct.id }); 
+        throw new Error(`Failed to create product asset on blockchain. ${error.message}`);
+    } finally {
+        if (gateway) {
+            gateway.disconnect();
+        }
+    }
+
+    return newProduct;
+}
+
+/**
+ * Fetches product details from SQL and its full history from the blockchain.
+ * @param {string} productId - The ID of the product.
+ * @param {string} userId - The username of the user requesting the data.
+ */
+async function getFullProductDetails(productId, userId) {
+    // 1. Get main product details from SQL
+    const productDetails = await findProduct({ id: productId });
+    if (!productDetails) {
+        throw new Error('Product not found in database');
+    }
+
+    let gateway;
+    try {
+        // 2. Get traceability history from Fabric
+        const { gateway: gw, contract } = await getContract(userId);
+        gateway = gw;
+
+        console.log(`\n--> Evaluate Transaction: getProductHistory, ID: ${productId}`);
+        const result = await contract.evaluateTransaction('getProductHistory', productId);
+        console.log(`*** Result: ${result.toString()}`);
+        
+        const history = JSON.parse(result.toString());
+
+        // 3. Combine and return
+        return {
+            ...productDetails.toJSON(),
+            traceabilityHistory: history
+        };
+    } catch (error) {
+        console.error(`Failed to get product history: ${error}`);
+        // Return product details even if history fails, but log the error
+        return {
+            ...productDetails.toJSON(),
+            traceabilityHistory: [],
+            error: 'Could not fetch traceability history.'
+        };
+    } finally {
+        if (gateway) {
+            gateway.disconnect();
+        }
+    }
+}
+
+// You can create similar wrapper functions for updateStatus and transferOwnership
+// For example:
+async function updateProductStatusWithTraceability(productId, newStatus, actorId) {
+    await updateProduct({ id: productId }, { status: newStatus }); // Assuming you add a 'status' field to your Product model
+
+    let gateway;
+    try {
+        const { gateway: gw, contract } = await getContract(actorId);
+        gateway = gw;
+        await contract.submitTransaction('updateStatus', productId, newStatus, actorId);
+    } finally {
+        if (gateway) {
+            gateway.disconnect();
+        }
+    }
+}
+
+
+module.exports = {
+    createProductWithTraceability,
+    getFullProductDetails,
+    updateProductStatusWithTraceability
+};
