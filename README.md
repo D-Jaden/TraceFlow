@@ -91,20 +91,6 @@ sudo ./network.sh down
 # Start the network
 sudo ./network.sh up
 
-# ────────────────────────────────────────────────
-# Optional: Create a channel (after network is up)
-# ────────────────────────────────────────────────
-
-# If you want to (re)create channel:
-sudo ./network.sh down   # only if you want to start completely fresh
-sudo ./network.sh up createChannel
-
-cd ~/NEHU/Temp/fabric-samples/test-network
-sudo ./network.sh down
-sudo ./network.sh up
-# or with channel:
-# sudo ./network.sh up createChannel
-
 # ─────────────────────────────────────
 # If you see permission errors later
 # ─────────────────────────────────────
@@ -117,5 +103,22 @@ newgrp docker
 # ─────────────────────────────────────
 
 sudo ./network.sh down 
-sudo ./network.sh up createChannel -c mychannel -ca
-sudo ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-javascript -ccl javascript 
+sudo ./network.sh up createChannel -c mychannel -ca 
+sudo ./network.sh deployCC -ccn traceability -ccp "../../TraceFlow/fabric-network/chaincode/node" -ccl javascript
+
+# ───────────────
+# EXPORTING
+# ───────────────
+
+export PATH=${PWD}/../bin:$PATH 
+export FABRIC_CFG_PATH=$PWD/../config/ 
+export CORE_PEER_TLS_ENABLED=true 
+export CORE_PEER_LOCALMSPID="Org1MSP" 
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt 
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp 
+export CORE_PEER_ADDRESS=localhost:7051
+
+# ───────────────
+# INVOKING
+# ───────────────
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n traceability --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"initLedger","Args":[]}'
