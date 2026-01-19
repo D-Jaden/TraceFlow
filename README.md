@@ -14,6 +14,10 @@ The steps below **completely remove** all existing Docker containers, images, vo
 ## 1. Complete Docker Cleanup (Nuclear Option)
 
 ```bash
+
+# ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------FOR DOCKER ----------------------------------------------------- 
+# ─────────────────────────────────────────────────────────────────────────────────────────────────────────
 # Stop all running containers (if any)
 sudo docker stop $(sudo docker ps -aq) 2>/dev/null || true
 
@@ -82,16 +86,21 @@ sudo systemctl status containerd --no-pager
 # Final test
 sudo docker run --rm hello-world
 
+# ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------FOR BLOCKCHAIN-------------------------------------------------- 
+# ─────────────────────────────────────────────────────────────────────────────────────────────────────────
+
 # Go to fabric-samples test-network (adjust path if different)
 cd ~/NEHU/Temp/fabric-samples/test-network
 
 # Clean up any previous network
 sudo ./network.sh down
 
-# ─────────────────────────────────────
+
+# ────────────────────────────────────────────────────────────────
 # CREATING THE CHANNEL
 # MAKE SURE DOCKER IS IN 28 OR A VERSION LOWER THAN THE LATEST
-# ─────────────────────────────────────
+# ────────────────────────────────────────────────────────────────
 
 sudo ./network.sh down 
 sudo ./network.sh up createChannel -c mychannel -ca 
@@ -110,7 +119,7 @@ export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.examp
 export CORE_PEER_ADDRESS=localhost:7051
 
 # ────────────
-#IMPORTANT
+# IMPORTANT
 # ────────────
 sudo chown -R $USER:$USER organizations/
 sudo chmod -R 755 organizations/
