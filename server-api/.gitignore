@@ -6,3 +6,5 @@ chaincode/
 config.js
 services/fabricService.js.temp
 services/productService.js.temp
+services/path/config.js
+
