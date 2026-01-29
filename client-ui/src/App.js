@@ -1,5 +1,6 @@
 import "./App.css";
 import Navbar from "./components/Navbar/components/Navbar";
+import CollapsibleCategorySidebar from "./components/Categories/CollapsibleCategorySidebar";
 import CategoryNavbar from "./components/Categories/CategoryNavbar";
 import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import Home from "./components/Navbar/components/Home";
@@ -21,6 +22,9 @@ import AddAddress from "./components/Address/AddAddress";
 import SellerOrders from "./components/Pages/Dashboards/SellerDashboard/components/SellerOrders";
 import AddProduct from "./components/Pages/Dashboards/SellerDashboard/components/AddProduct";
 import MyProducts from "./components/Pages/Dashboards/SellerDashboard/components/MyProducts";
+
+import ForgetPasswordForm from "./components/Authentication/components/ForgotPasswordForm"; // ADDED PATH
+
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -96,13 +100,17 @@ function App() {
           onLogout={handleLogout}
           onProfileClick={() => setShowProfileDrawer(true)}
         />
+        <CollapsibleCategorySidebar />
         <CategoryNavbar />
         <div className="container">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/login" element={<Login onLogin={handleLogin} />} />
+            <Route path="/login" element={<Login onLogin={handleLogin} />}/>
+
+            <Route path="/forgot-password" element={<ForgetPasswordForm onLogin={handleLogin} />} />
+            
             <Route
               path="/admin-dashboard"
               element={userInfo?.role === "ADMIN" ? <AdminDashboard /> : <Navigate to="/" />}
@@ -143,7 +151,6 @@ function App() {
                 )
               } 
             />
-
           </Routes>
         </div>
         <ProfileDrawer

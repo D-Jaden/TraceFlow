@@ -5,7 +5,9 @@ const cors = require("cors"); // For Cross Origin Resource Sharing
 const morgan = require("morgan"); // For logging
 require('dotenv').config();
 
-//const { getContract } = require('../../fabric-samples');
+//TESTING HEADER SIZE
+const http = require('http');
+http.globalAgent.maxHeaderSize = 16384;
 
 const sequelize= require("./common/models/SequelizeInstance");
 
@@ -24,6 +26,8 @@ const CartRoutes = require("./cart/routes");
 const CategoryRoutes  = require("./Categories/routes")
 const SearchRoutes = require("./common/meilisearch/routes")
 // const traceflowRoutes = require("./traceflowRouters/routes");
+
+// const forgotPasswordRoutes = require("./authorization/routes/forgotPasswordRoutes"); (NOT SURE YET)
 
 app.use(morgan("tiny"));
 app.use(cors());
@@ -51,6 +55,7 @@ sequelize
     app.use("/cart", CartRoutes)
     app.use("/category", CategoryRoutes);
     // app.use("/traceflow", traceflowRoutes)
+    // app.use("./authorization/routes/forgotPasswordRoutes", forgotPasswordRoutes); (NOT SURE YET)
 
     app.listen(PORT, ADDRESS, () => {
       console.log("Server Listening on PORT:", port);
