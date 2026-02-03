@@ -4,5 +4,6 @@
 /uploads
 /chaincode
 /config
-
-
+config.js
+services/fabricService.js.temp
+services/productService.js.temp
