@@ -40,7 +40,7 @@ router.post(
     ProductController.createProduct
 )
 
-rouer.patch(
+router.patch(
     "/:id",
     isAuthenticatedMiddleware.check,
     CheckPermissionMiddleware.has(roles.ADMIN),
