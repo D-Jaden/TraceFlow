@@ -40,7 +40,7 @@ router.post(
     ProductController.createProduct
 )
 
-router.patch(
+rouer.patch(
     "/:id",
     isAuthenticatedMiddleware.check,
     CheckPermissionMiddleware.has(roles.ADMIN),
@@ -54,7 +54,7 @@ router.delete(
     CheckPermissionMiddleware.has(roles.ADMIN),
     ProductController.deleteProduct
 )
-
+t
 router.post(
     "/sync-blockchain/:id",
     [isAuthenticatedMiddleware.check],

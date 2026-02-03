@@ -67,7 +67,7 @@ module.exports = {
     },
 
     deleteUser: (req, res) => {
-        const { userId } = jwt.verify(req.headers.authorization.split(" ")[1], jwtSecret);;
+        const { userId } = jwt.verify(req.headers.authorization.split(" ")[1], jwtSecret);
         UserModel.deleteUser({ id: userId })
             .then(() => {
                 return res.status(200).json({
